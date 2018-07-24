@@ -5,15 +5,24 @@ import gql from 'graphql-tag';
 
 const _registerMutation = gql`
 mutation($username: String!, $email: String!, $password: String!) {
-  register(username: $username, email: $email, password: $password)
+  register(username: $username, email: $email, password: $password) {
+    ok
+    errors {
+      path
+      message
+    }
+  }
 }
 `;
 
 class Register extends React.Component {
   state = {
     username: '',
+    usernameError: '',
     email: '',
+    emailError: '',
     password: '',
+    passwordError: '',
   };
 
   onChange = e => {
@@ -24,25 +33,46 @@ class Register extends React.Component {
   };
 
   onSubmit = async (mutation) => {
-    const response = await mutation({ variables: this.state })
-    console.log(response);
+    const { username, email, password } = this.state;
+    const response = await mutation({ variables: { username, email, password }});
+    
+    const { ok, errors } = response.data.register;
+
+    if (ok) {
+      this.props.history.push('/');
+    } else {
+      const err = {};
+      errors.forEach(({ path, message }) => {
+        err[`${path}Error`] = message;
+      });
+      this.setState(err);
+    }
   }
 
   render() {
-    const { username, email, password } = this.state;
+    const { username, email, password, usernameError, emailError, passwordError } = this.state;
 
     return (
       <Container text>
         <Header as="h2">Register</Header>
         <Input
+          error={usernameError}
           name="username"
           onChange={this.onChange}
           value={username}
           placeholder="Username"
           fluid
         />
-        <Input name="email" onChange={this.onChange} value={email} placeholder="Email" fluid />
+        <Input 
+          error={emailError} 
+          name="email" 
+          onChange={this.onChange} 
+          value={email} 
+          placeholder="Email" 
+          fluid 
+        />
         <Input
+          error={passwordError}
           name="password"
           onChange={this.onChange}
           value={password}
@@ -60,7 +90,6 @@ class Register extends React.Component {
 
 
 export default Register;
-
 
 // {( mutationCallback, { loading, error } ) => {
 //     if (loading) return <div>Loading...</div>
