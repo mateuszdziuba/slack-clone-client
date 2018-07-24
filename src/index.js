@@ -1,13 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import registerServiceWorker from './registerServiceWorker';
 import ApolloClient from 'apollo-boost';
 import { ApolloProvider } from 'react-apollo';
+import 'semantic-ui-css/semantic.min.css';
+import registerServiceWorker from './registerServiceWorker';
 
 import Routes from './routes';
 
 const client = new ApolloClient({
-  uri: 'http://localhost:4000/graphql'
+  uri: 'http://localhost:8080/graphql',
 });
 
 const App = () => (
